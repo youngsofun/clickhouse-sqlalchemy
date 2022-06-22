@@ -177,4 +177,9 @@ class RequestsTransport(object):
             orig = HTTPException(r.text)
             orig.code = r.status_code
             raise DatabaseException(orig)
+
+        # change only if success
+        data = data.strip()
+        if data.starts_with("USE"):
+            self.db_name = data.split(" ")[1]
         return r
