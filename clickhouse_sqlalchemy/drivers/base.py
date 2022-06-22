@@ -409,7 +409,7 @@ class ClickHouseDialect(default.DefaultDialect):
 
     def _get_default_schema_name(self, connection):
         return self._execute(
-            connection, 'select currentDatabase()', scalar=True
+            connection, 'select database()', scalar=True
         )
 
     def connect(self, *cargs, **cparams):

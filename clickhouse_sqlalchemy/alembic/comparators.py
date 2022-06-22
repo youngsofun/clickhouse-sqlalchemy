@@ -32,7 +32,7 @@ def compare_mat_view(autogen_context, upgrade_ops, schemas):
         text(
             'SELECT engine '
             'FROM system.databases '
-            'WHERE database = currentDatabase()'
+            'WHERE database = database()'
         ), scalar=True
     )
 
@@ -87,7 +87,7 @@ def compare_mat_view(autogen_context, upgrade_ops, schemas):
             text(
                 'SELECT name, as_select, engine_full, create_table_query '
                 'FROM system.tables '
-                'WHERE database = currentDatabase() AND name IN :names'
+                'WHERE database = database() AND name IN :names'
             ), names=list(removed_mat_views | existing_mat_views)
         )
         mat_view_params_by_name = {x.name: x for x in rv}
