@@ -19,6 +19,9 @@ DATETIME_NULL = '0000-00-00 00:00:00'
 
 EXTRACT_SUBTYPE_RE = re.compile(r'^[^\(]+\((.+)\)$')
 
+SET_SQL_RE = re.compile(r"^set\s+(?P<key>\w+)=(?P<value>\w+)\s*;?", flags=re.IGNORECASE)
+
+USE_SQL_RE = re.compile(r"^use\s+(?P<db>\w+)\s*;?", flags=re.IGNORECASE)
 
 def date_converter(x):
     if x != DATE_NULL:
@@ -162,6 +165,7 @@ class RequestsTransport(object):
         return self._send(query, params=params, stream=stream).text
 
     def _send(self, data, params=None, stream=False):
+        data_str = data
         data = data.encode('utf-8')
         params = params or {}
         params['database'] = self.db_name
@@ -179,7 +183,13 @@ class RequestsTransport(object):
             raise DatabaseException(orig)
 
         # change only if success
-        data = data.strip()
-        if data.starts_with("USE"):
-            self.db_name = data.split(" ")[1]
+        # todo replace with regix
+        data = data_str.strip().lower()
+        m = USE_SQL_RE.match(data)
+        if m:
+            self.db_name = m.group('db')
+        else:
+            m = SET_SQL_RE.match(data)
+            if m:
+                self.ch_settings[m.group('key')] = m.group('value')
         return r
