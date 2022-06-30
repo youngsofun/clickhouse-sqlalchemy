@@ -19,7 +19,7 @@ DATETIME_NULL = '0000-00-00 00:00:00'
 
 EXTRACT_SUBTYPE_RE = re.compile(r'^[^\(]+\((.+)\)$')
 
-SET_SQL_RE = re.compile(r"^set\s+(?P<key>\w+)=(?P<value>\w+)\s*;?", flags=re.IGNORECASE)
+SET_SQL_RE = re.compile(r"^SET\s+(?P<key>\w+)\s*=\s*[\"\']?(?P<value>[^;\"\']+)[\"\']?\s*;?", flags=re.IGNORECASE)
 
 USE_SQL_RE = re.compile(r"^use\s+(?P<db>\w+)\s*;?", flags=re.IGNORECASE)
 
@@ -184,7 +184,7 @@ class RequestsTransport(object):
 
         # change only if success
         # todo replace with regix
-        data = data_str.strip().lower()
+        data = data_str.strip()
         m = USE_SQL_RE.match(data)
         if m:
             self.db_name = m.group('db')
@@ -192,4 +192,5 @@ class RequestsTransport(object):
             m = SET_SQL_RE.match(data)
             if m:
                 self.ch_settings[m.group('key')] = m.group('value')
+        # print(f"setting = {self.ch_settings}")
         return r
